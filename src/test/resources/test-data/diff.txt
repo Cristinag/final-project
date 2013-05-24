@@ -1,0 +1,28 @@
+From d006e0d4fa58335d4d5a6a115694f73c92aef555 Mon Sep 17 00:00:00 2001
+From: Author Name <email@address.com>
+Date: Mon, 6 Aug 2012 09:54:52 -0700
+Subject: This is a sample diff file used for testing
+
+---
+ path/to/file/changed.txt |    7 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/path/to/file/changed.txt b/path/to/file/changed.txt
+index 1219bf5..a1893ef 100644
+--- a/path/to/file/changed.txt
++++ b/path/to/file/changed.txt
+@@ -248,7 +248,10 @@ This part of the document remained the same.(line: 248, 248)							
+-original line that is changed (line: 249)
++original line that is changed (new line) (line: 249)
+ (line: 250, 250)
+-original line that should be removed(line: 251)
+-original line that should be removed (line: 252)
++a new line (not obtained from changing an existing one) 1 (line: 251)
++a new line (not obtained from changing an existing one) 2 (line: 252)
++a new line (not obtained from changing an existing one) 3 (line: 253)
+ Some more lines(line: 253, 254)
++new line (line: 255)
++new line (line: 256)
+ Some more lines(line: 254, 257)
+
+

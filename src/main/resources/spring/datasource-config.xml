@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+		http://www.springframework.org/schema/jdbc
+		http://www.springframework.org/schema/jdbc/spring-jdbc-3.1.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+	
+	<!-- Profile used for testing -->
+	<beans profile="dev">
+		<bean id="dataSource"
+			class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+			<property name="driverClassName" value="org.h2.Driver" />
+			<property name="url" value="jdbc:h2:mem:test;DB_CLOSE_DELAY=-1" />
+			<property name="username" value="sa" />
+			<property name="password" value="" />
+		</bean>
+		<jdbc:initialize-database data-source="dataSource"
+			ignore-failures="DROPS">
+			<jdbc:script location="classpath:config/DB.sql" />
+		</jdbc:initialize-database>
+	</beans>
+
+	<beans profile="production">
+		<context:property-placeholder
+			location="classpath:spring/data-access.properties" />
+		<bean id="dataSource" class="org.postgresql.ds.PGSimpleDataSource">
+			<property name="serverName" value="${jdbc.serverName}" />
+			<property name="databaseName" value="${jdbc.databaseName}" />
+			<property name="portNumber" value="${jdbc.portNumber}" />
+			<property name="user" value="${jdbc.user}" />
+			<property name="password" value="${jdbc.password}" />
+			<property name="ssl" value="${jdbc.ssl}" />
+			<property name="sslfactory" value="${jdbc.sslfactory}" />
+		</bean>
+	</beans>
+
+</beans>
