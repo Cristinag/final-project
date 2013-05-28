@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import com.testprioritization.domain.dao.ChangesRepository;
 import com.testprioritization.domain.dao.LinesRepository;
 import com.testprioritization.domain.model.Line;
 
@@ -26,37 +27,37 @@ public class RevisionParserTest {
 	@Mock
 	private LinesRepository linesRepo;
 
+	@Mock
+	private ChangesRepository changesRepo;
+
 	private static final String project = "project";
 	private static final String diffFilePath = "src/test/resources/test-data/diff.txt";
 	private static final String changedFileInDiff = "path/to/file/changed.txt";
 
 	@Before
 	public void setup() {
-		parser = new RevisionParser(linesRepo, project);
+		parser = new RevisionParser(linesRepo, project, changesRepo);
+	}
+
+	private void mockGetLine() {
+		given(
+				linesRepo.getLineId(Mockito.anyInt(), Mockito.anyString(),
+						Mockito.anyString())).willReturn(1);
 	}
 
 	@Test
 	public void shouldUpdatesContentsOfUnchangedLines() throws IOException {
-		int[] unchangedLines = { 248, 250, 253, 254 };
-		for (int unchangedLine : unchangedLines) {
-			Line l = new Line(unchangedLine, "contents", "file", project);
-			given(linesRepo.getLine(unchangedLine, changedFileInDiff, project))
-					.willReturn(l);
-		}
+		mockGetLine();
 		BufferedReader br = new BufferedReader(new FileReader(diffFilePath));
 		parser.processChanges(br);
 		br.close();
-		Mockito.verify(linesRepo).replaceLine(
-				Mockito.argThat(new LineNumberArgumentMatcher(248)),
+		Mockito.verify(linesRepo).replaceLine(Mockito.eq(248),
 				Mockito.argThat(new LineNumberArgumentMatcher(248)));
-		Mockito.verify(linesRepo).replaceLine(
-				Mockito.argThat(new LineNumberArgumentMatcher(250)),
+		Mockito.verify(linesRepo).replaceLine(Mockito.eq(250),
 				Mockito.argThat(new LineNumberArgumentMatcher(250)));
-		Mockito.verify(linesRepo).replaceLine(
-				Mockito.argThat(new LineNumberArgumentMatcher(253)),
+		Mockito.verify(linesRepo).replaceLine(Mockito.eq(253),
 				Mockito.argThat(new LineNumberArgumentMatcher(254)));
-		Mockito.verify(linesRepo).replaceLine(
-				Mockito.argThat(new LineNumberArgumentMatcher(254)),
+		Mockito.verify(linesRepo).replaceLine(Mockito.eq(254),
 				Mockito.argThat(new LineNumberArgumentMatcher(257)));
 	}
 
@@ -68,10 +69,10 @@ public class RevisionParserTest {
 		new Line(249, "changed line content 2(line: 249)", changedFileInDiff,
 				project);
 		given(
-				linesRepo.replaceLine(
-						Mockito.argThat(new LineNumberArgumentMatcher(249)),
+				linesRepo.replaceLine(Mockito.eq(249),
 						Mockito.argThat(new LineNumberArgumentMatcher(249))))
 				.willReturn(lineAddedId);
+		mockGetLine();
 		BufferedReader br = new BufferedReader(new FileReader(diffFilePath));
 		List<Integer> changes = parser.processChanges(br);
 		br.close();
@@ -80,6 +81,7 @@ public class RevisionParserTest {
 
 	@Test
 	public void shouldShiftLines() throws IOException {
+		mockGetLine();
 		BufferedReader br = new BufferedReader(new FileReader(diffFilePath));
 		parser.processChanges(br);
 		br.close();
@@ -89,15 +91,17 @@ public class RevisionParserTest {
 
 	@Test
 	public void shouldDeleteLines() throws IOException {
+		mockGetLine();
 		BufferedReader br = new BufferedReader(new FileReader(diffFilePath));
 		parser.processChanges(br);
 		br.close();
-		Mockito.verify(linesRepo, Mockito.times(2)).deleteLine(
-				Mockito.any(Line.class));
+		Mockito.verify(linesRepo, Mockito.times(2))
+				.deleteLine(Mockito.anyInt());
 	}
 
 	@Test
 	public void shouldAddNewLines() throws IOException {
+		mockGetLine();
 		BufferedReader br = new BufferedReader(new FileReader(diffFilePath));
 		parser.processChanges(br);
 		br.close();

@@ -3,7 +3,7 @@ package com.testprioritization.domain.model;
 public class Line {
 	private final String file;
 	private final String lineContents;
-	private final int lineId;
+	private final Integer lineId;
 	private final int lineNo;
 	private final String project;
 
@@ -12,11 +12,11 @@ public class Line {
 		this.lineContents = lineContents;
 		this.file = file;
 		this.project = project;
-		this.lineId = -1;
+		this.lineId = null;
 	}
 
 	public Line(int lineNo, String lineContents, String file, String project,
-			int lineId) {
+			Integer lineId) {
 		this.lineNo = lineNo;
 		this.lineContents = lineContents;
 		this.file = file;
@@ -44,7 +44,7 @@ public class Line {
 		return lineContents;
 	}
 
-	public int getLineId() {
+	public Integer getLineId() {
 		return lineId;
 	}
 

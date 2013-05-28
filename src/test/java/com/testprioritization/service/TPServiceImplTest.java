@@ -76,9 +76,8 @@ public class TPServiceImplTest {
 				"test", 0, 0);
 		tests.add(test);
 		given(testsRepo.getTests(project)).willReturn(tests);
-		given(
-				changesRepo.getProbChanged(Mockito.eq(project),
-						Mockito.anyInt(), Mockito.eq("test"))).willReturn(0);
+		given(changesRepo.getProbChanged(Mockito.anyInt(), Mockito.eq("test")))
+				.willReturn(0);
 		List<String> returnedTests = tpService.prioritizeTests(project);
 		List<String> expectedTests = new ArrayList<String>();
 		expectedTests.add(test.getName());

@@ -16,7 +16,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ContextConfiguration(locations = "classpath:config/test-config.xml")
 @ActiveProfiles("dev")
 public class ChangesRepositoryFunctionalTest {
-	private static final String projectInDb = "project3";
 	private static final int lineIdInDb = 1;
 	private static final String testInDb = "test5";
 	private static final int countInDb = 4;
@@ -25,16 +24,14 @@ public class ChangesRepositoryFunctionalTest {
 
 	@Test
 	public void shouldGetProbChanged() {
-		int probInDb = changesRepo.getProbChanged(projectInDb, lineIdInDb,
-				testInDb);
+		int probInDb = changesRepo.getProbChanged(lineIdInDb, testInDb);
 		assertThat(probInDb, is(countInDb));
 	}
 
 	@Test
 	public void shouldIncrementChangeCount() {
-		changesRepo.incrementChangeCount(projectInDb, testInDb, lineIdInDb);
-		int probInDb = changesRepo.getProbChanged(projectInDb, lineIdInDb,
-				testInDb);
+		changesRepo.incrementChangeCount(lineIdInDb, testInDb);
+		int probInDb = changesRepo.getProbChanged(lineIdInDb, testInDb);
 		assertThat(probInDb, is(countInDb + 1));
 	}
 }

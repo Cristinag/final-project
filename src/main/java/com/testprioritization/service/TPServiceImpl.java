@@ -54,7 +54,8 @@ public class TPServiceImpl implements TPService {
 	@Transactional
 	public void processChanges(BufferedReader diffFile, String project)
 			throws IOException {
-		RevisionParser revParser = new RevisionParser(linesRepo, project);
+		RevisionParser revParser = new RevisionParser(linesRepo, project,
+				changesRepo);
 		buildsRepo.saveChanges(project, revParser.processChanges(diffFile));
 	}
 
@@ -80,8 +81,7 @@ public class TPServiceImpl implements TPService {
 			if (!testOutcomes.get(test)) {
 				Iterator<Integer> lineIt = changes.iterator();
 				while (lineIt.hasNext()) {
-					changesRepo.incrementChangeCount(project, test,
-							lineIt.next());
+					changesRepo.incrementChangeCount(lineIt.next(), test);
 				}
 			}
 		}

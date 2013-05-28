@@ -28,7 +28,7 @@ public class JdbcLinesRepository implements LinesRepository {
 	}
 
 	@Override
-	public int addLine(final Line line) {
+	public Integer addLine(final Line line) {
 		final String sql = "INSERT INTO lines (project, file, lineno, line)"
 				+ " VALUES (?, ?, ?, ?)";
 		KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -55,42 +55,35 @@ public class JdbcLinesRepository implements LinesRepository {
 	}
 
 	@Override
-	public void deleteLine(Line line) {
-		jdbcTemplate.update("DELETE FROM lines WHERE project=?"
-				+ " AND file=? AND lineno=?;", line.getProject(),
-				line.getFile(), line.getLineNo());
+	public void deleteLine(Integer lineId) {
+		jdbcTemplate.update("DELETE FROM lines WHERE lineid=?;", lineId);
 	}
 
 	@Override
-	public Line getLine(final int lineNo, final String file,
+	public Integer getLineId(final int lineNo, final String file,
 			final String project) {
-		final String sql = "SELECT * FROM lines WHERE "
+		final String sql = "SELECT (lineid) FROM lines WHERE "
 				+ "project=? AND file=? AND lineno=?;";
 		SqlRowSet lineRows = jdbcTemplate.queryForRowSet(sql, new Object[] {
 				project, file, lineNo });
 		if (lineRows.first()) {
-			return new Line(lineNo, lineRows.getString("line"), file, project,
-					lineRows.getInt("lineId"));
+			return lineRows.getInt("lineId");
 		}
 		return null;
 	}
 
 	@Override
-	public int replaceLine(Line oldLine, Line newLine) {
-		if (oldLine == null) {
-			return addLine(newLine);
-		}
+	public Integer replaceLine(Integer lineNo, Line newLine) {
 		int rowsModif = jdbcTemplate.update(
 				"UPDATE lines SET lineno=?, line=? WHERE project=?"
 						+ " AND file=? AND lineno=?;", newLine.getLineNo(),
-				newLine.getLineContents(), oldLine.getProject(),
-				oldLine.getFile(), oldLine.getLineNo());
+				newLine.getLineContents(), newLine.getProject(),
+				newLine.getFile(), lineNo);
 		if (rowsModif < 1) {
-			// |oldLine| was not stored, just add |newLine|.
 			return addLine(newLine);
 		}
-		return getLine(newLine.getLineNo(), oldLine.getFile(),
-				oldLine.getProject()).getLineId();
+		return getLineId(newLine.getLineNo(), newLine.getFile(),
+				newLine.getProject());
 	}
 
 	@Override

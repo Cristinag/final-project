@@ -16,19 +16,19 @@ public interface LinesRepository {
 	 *            the line to be added
 	 * @return the id of the added line
 	 */
-	int addLine(Line line);
+	Integer addLine(Line line);
 
 	/**
-	 * Removes |line| from the repository.
+	 * Removes the line with the given id from the repository.
 	 * 
-	 * @param line
-	 *            the line to be removed
+	 * @param lineId
+	 *            the id of the line to be removed
 	 */
-	void deleteLine(Line line);
+	void deleteLine(Integer lineId);
 
 	/**
-	 * Returns a line from the repository given its line number and the file and
-	 * project to which it corresponds.
+	 * Returns the id of a line given its number and the file and project to
+	 * which it belongs.
 	 * 
 	 * @param lineNo
 	 *            the number of the line to be retrieved in the file |file|
@@ -36,21 +36,9 @@ public interface LinesRepository {
 	 *            file containing the line to be retrieved
 	 * @param project
 	 *            project containing |file|
-	 * @return line or null if line not found
+	 * @return line id or null if line not found
 	 */
-	Line getLine(int lineNo, String file, String project);
-
-	/**
-	 * Replaces the number and contents of a given line with those of another
-	 * line.
-	 * 
-	 * @param line1
-	 *            the line to be replaced
-	 * @param line2
-	 *            the replacing line
-	 * @return the id of the new line
-	 */
-	int replaceLine(Line line1, Line line2);
+	Integer getLineId(int lineNo, String file, String project);
 
 	/**
 	 * Shifts the lines in the file |file| and project |project| starting at
@@ -68,4 +56,18 @@ public interface LinesRepository {
 	 */
 	void shiftLines(int startLineNo, int shiftAmount, String file,
 			String project);
+
+	/**
+	 * Replaces the number and contents of the line at number |lineNo| with
+	 * those of line |newLine|, or adds |newLine| if no line exists at the given
+	 * number.
+	 * 
+	 * @param lineNo
+	 *            the number of the line to be replaced
+	 * @param newLine
+	 *            the replacing line
+	 * @return the id of the new line
+	 */
+	Integer replaceLine(Integer lineNo, Line newLine);
+
 }

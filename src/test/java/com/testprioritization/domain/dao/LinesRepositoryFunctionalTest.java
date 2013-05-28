@@ -31,57 +31,50 @@ public class LinesRepositoryFunctionalTest {
 
 	@Test
 	public void shouldGetLine() {
-		assertEquals(lineInDb,
-				linesRepo.getLine(1, lineInDb.getFile(), projectInDb));
+		assertEquals(lineInDb.getLineId(),
+				linesRepo.getLineId(1, lineInDb.getFile(), projectInDb));
 	}
 
 	@Test
 	@Transactional
 	public void shouldDeleteLine() {
-		assertNotNull(linesRepo.getLine(lineInDb.getLineNo(),
+		assertNotNull(linesRepo.getLineId(lineInDb.getLineNo(),
 				lineInDb.getFile(), projectInDb));
-		linesRepo.deleteLine(lineInDb);
-		assertNull(linesRepo.getLine(lineInDb.getLineNo(), lineInDb.getFile(),
-				projectInDb));
+		linesRepo.deleteLine(lineInDb.getLineId());
+		assertNull(linesRepo.getLineId(lineInDb.getLineNo(),
+				lineInDb.getFile(), projectInDb));
 	}
 
 	@Test
 	@Transactional
 	public void shouldAddLine() {
-		assertNull(linesRepo.getLine(newLine.getLineNo(), newLine.getFile(),
-				projectInDb));
-		linesRepo.addLine(newLine);
-		Line storedLine = linesRepo.getLine(newLine.getLineNo(),
+		Integer storedLineId = linesRepo.getLineId(newLine.getLineNo(),
 				newLine.getFile(), projectInDb);
-		assertNotNull(storedLine);
-		assertEquals(storedLine, newLine);
+		assertNull(storedLineId);
+		linesRepo.addLine(newLine);
+		storedLineId = linesRepo.getLineId(newLine.getLineNo(),
+				newLine.getFile(), projectInDb);
+		assertNotNull(storedLineId);
 	}
 
 	@Test
 	@Transactional
 	public void shouldShiftLines() {
 		int shiftAmount = 2;
-		linesRepo.shiftLines(lineInDb.getLineId(), shiftAmount,
+		linesRepo.shiftLines(lineInDb.getLineNo(), shiftAmount,
 				lineInDb.getFile(), projectInDb);
-		Line updatedLine = linesRepo.getLine(
-				lineInDb.getLineNo() + shiftAmount, lineInDb.getFile(),
-				projectInDb);
-		assertNotNull(updatedLine);
-		assertEquals(updatedLine.getLineContents(), lineInDb.getLineContents());
-		assertEquals(updatedLine.getFile(), lineInDb.getFile());
-		assertEquals(updatedLine.getLineId(), lineInDb.getLineId());
-		assertEquals(updatedLine.getLineNo(), lineInDb.getLineNo()
-				+ shiftAmount);
-
+		Integer updatedLineId = linesRepo.getLineId(lineInDb.getLineNo()
+				+ shiftAmount, lineInDb.getFile(), projectInDb);
+		assertEquals(updatedLineId, lineInDb.getLineId());
 	}
 
 	@Test
 	@Transactional
 	public void shouldReplaceLine() {
-		linesRepo.replaceLine(lineInDb, newLine);
-		assertNull(linesRepo.getLine(lineInDb.getLineNo(), lineInDb.getFile(),
-				projectInDb));
-		assertNotNull(linesRepo.getLine(newLine.getLineNo(), newLine.getFile(),
-				projectInDb));
+		linesRepo.replaceLine(lineInDb.getLineNo(), newLine);
+		assertNull(linesRepo.getLineId(lineInDb.getLineNo(),
+				lineInDb.getFile(), projectInDb));
+		assertNotNull(linesRepo.getLineId(newLine.getLineNo(),
+				newLine.getFile(), projectInDb));
 	}
 }

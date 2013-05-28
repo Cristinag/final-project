@@ -24,5 +24,3 @@ index 1219bf5..a1893ef 100644
 +new line (line: 255)
 +new line (line: 256)
  Some more lines(line: 254, 257)
-
-

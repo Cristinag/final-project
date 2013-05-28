@@ -13,6 +13,7 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.testprioritization.domain.dao.ChangesRepository;
 import com.testprioritization.domain.dao.LinesRepository;
 import com.testprioritization.domain.model.Line;
 
@@ -32,11 +33,15 @@ public class RevisionParser {
 	// by changing the other.
 	private static final double similarityThreshold = 0.4;
 	LinesRepository linesRepo;
+	ChangesRepository changesRepo;
+
 	String project;
 
-	public RevisionParser(LinesRepository linesRepo, String project) {
+	public RevisionParser(LinesRepository linesRepo, String project,
+			ChangesRepository changesRepo) {
 		this.linesRepo = linesRepo;
 		this.project = project;
+		this.changesRepo = changesRepo;
 	}
 
 	// Processed the changes in the diff file.
@@ -126,10 +131,9 @@ public class RevisionParser {
 			int origLineNo = unchangedCt + deletedCt + origStart;
 			int newLineNo = unchangedCt + addedCt + newStart;
 			if (line.startsWith(" ")) {
-				Line storedLine = linesRepo.getLine(origLineNo, file, project);
 				Line newLine = new Line(newLineNo, line.substring(1), file,
 						project);
-				linesRepo.replaceLine(storedLine, newLine);
+				linesRepo.replaceLine(origLineNo, newLine);
 				if (changeType == ChangeType.ADD) {
 					// This is the first unchanged line after an added
 					// paragraph. Add the paragraph to the |addedParagraphs|
@@ -221,7 +225,7 @@ public class RevisionParser {
 			} else if (!usedDeletedParagraphs[deletedParagraphIndex]) {
 				lineIt = deleteParagraphs.get(deletedParagraphIndex).iterator();
 				while (lineIt.hasNext()) {
-					linesRepo.deleteLine(lineIt.next());
+					deleteLine(lineIt.next());
 				}
 				usedDeletedParagraphs[deletedParagraphIndex] = true;
 			}
@@ -278,14 +282,14 @@ public class RevisionParser {
 			}
 
 			if (candidateSim >= similarityThreshold) {
-				int lineId = linesRepo.replaceLine(deletedLines.get(lastDel),
-						addedLines.get(lastAdd));
+				int lineId = linesRepo.replaceLine(deletedLines.get(lastDel)
+						.getLineNo(), addedLines.get(lastAdd));
 				linesChanged.add(new Integer(lineId));
 				changedCt++;
 			} else {
 				int lineId = linesRepo.addLine(addedLines.get(lastAdd));
 				linesChanged.add(new Integer(lineId));
-				linesRepo.deleteLine(deletedLines.get(lastDel));
+				deleteLine(deletedLines.get(lastDel));
 				addedCt++;
 				deletedCt++;
 			}
@@ -296,8 +300,7 @@ public class RevisionParser {
 				addedCt++;
 			}
 			while (deletedCt + changedCt <= lastDel) {
-				linesRepo.deleteLine(deletedLines
-						.get(deletedCt + changedCt - 1));
+				deleteLine(deletedLines.get(deletedCt + changedCt - 1));
 				deletedCt++;
 			}
 		}
@@ -307,10 +310,17 @@ public class RevisionParser {
 			addedCt++;
 		}
 		while (deletedCt + changedCt < deletedLines.size()) {
-			linesRepo.deleteLine(deletedLines.get(deletedCt + changedCt));
+			deleteLine(deletedLines.get(deletedCt + changedCt));
 			deletedCt++;
 		}
 		return linesChanged;
+	}
+
+	private void deleteLine(Line line) {
+		Integer lineId = linesRepo.getLineId(line.getLineNo(), line.getFile(),
+				line.getProject());
+		changesRepo.deleteChangesForLineId(lineId);
+		linesRepo.deleteLine(lineId);
 	}
 
 	// Computes the similarities between two sets of paragraphs.

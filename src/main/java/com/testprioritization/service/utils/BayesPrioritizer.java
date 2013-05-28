@@ -38,17 +38,21 @@ public class BayesPrioritizer {
 			tests.add(test.getName());
 			float numberFailures = test.getFailures();
 			float numberRuns = test.getRuns();
-			numberRuns--;
 			Iterator<Integer> changedLinesIt = changes.iterator();
 			// |probTestFails| is the probability that |test| fails.
 			double probTestFails = numberFailures / numberRuns;
 			// |probChangesGivenTestFails| is the probability that the changes
 			// |changes| occurred given that test |test| failed.
 			double probChangesGivenTestFails = 1;
+			if (numberFailures == 0) {
+				probs.put(test.getName(), 0.0);
+				continue;
+			}
+
 			while (changedLinesIt.hasNext()) {
 				int changedLine = changedLinesIt.next();
 				double probChangeGivenTestFails = changesRepo.getProbChanged(
-						project, changedLine, test.getName());
+						changedLine, test.getName());
 				probChangesGivenTestFails *= (1 + (probChangeGivenTestFails / numberFailures));
 			}
 			// The probability that a test fails given a set of changes is

@@ -1,38 +1,42 @@
 package com.testprioritization.domain.dao;
 
 /**
- * ChangesRepository contains for each project, each line in that project and
- * each test the number of times the line has been changed when the test failed.
- * This represents the probability that a line is changed given that a test
- * failed.
+ * ChangesRepository contains for each line and each test in a project the
+ * number of times the line has been changed when the test failed (i.e. the
+ * probability that a line is changed given that a test failed).
  */
 public interface ChangesRepository {
 
 	/**
-	 * Retrieves the number of times |line| was changed given that |test| failed
-	 * in |project|.
+	 * Retrieves the number of times the line with id |lineId| was changed given
+	 * that |test| failed.
 	 * 
-	 * @param project
-	 *            the project to which |line| and |test| correspond
-	 * @param line
-	 *            line id as stored in the LinesRepository
+	 * @param lineId
+	 *            line id
 	 * @param test
 	 *            name of the test
-	 * @return the number of times |line| was changed when |test| failed
+	 * @return probability that line with id |lineid| is changed given that
+	 *         |test| failed
 	 */
-	int getProbChanged(String project, int line, String test);
+	int getProbChanged(Integer lineId, String test);
 
 	/**
-	 * Increments the number of times |line| was changed when |test| failed in
-	 * |project|.
+	 * Increments the number of times the line with id |lineId| was changed when
+	 * |test| failed.
 	 * 
-	 * @param project
-	 *            the project to which |line| and |test| correspond
+	 * @param lineId
+	 *            line id
 	 * @param test
 	 *            name of the test
-	 * @param line
+	 */
+	void incrementChangeCount(Integer lineId, String test);
+
+	/**
+	 * Removes the entry associated with the given line id.
+	 * 
+	 * @param lineId
 	 *            line id
 	 */
-	void incrementChangeCount(String project, String test, int line);
+	void deleteChangesForLineId(Integer lineId);
 
 }
